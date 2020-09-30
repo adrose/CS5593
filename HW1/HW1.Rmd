@@ -1,0 +1,173 @@
+---
+title: "HW 1"
+author: "Adon Rosen"
+date: 'Date: `r Sys.Date()`'
+output: pdf_document
+---
+  
+```{r, echo=F, message=F, warning=FALSE}
+library(knitr)
+opts_knit$set(root.dir='./')  #Don't combine this call with any other chunk -especially one that uses file paths.
+```
+
+
+<!-- Set the report-wide options, and point to the external code file. -->
+```{r set_options, echo=F, warning=FALSE}
+# cat("Working directory: ", getwd())
+report_render_start_time <- Sys.time()
+opts_chunk$set(
+  results    = 'show',
+  comment    = NA,
+  tidy       = FALSE,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.path   = 'figure-png/'
+)
+# echoChunks <- FALSE
+options(width=80) #So the output is 50% wider than the default.
+read_chunk("./HW1.R") #This allows knitr to call chunks tagged in the underlying *.R file.
+```
+
+```{r load-packages, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+# Question 1
+
+For the Ambulatory Medical Care data set given below, give one
+specific example for each of the classification, clustering, association rule mining,
+and anomaly detection tasks that can be performed on the data (i.e. give an example
+of a data mining task that would require classification; an example of a data mining
+task that would require clustering, etc.). For each task, state how the data matrix
+should be constructed (i.e., specify the rows and columns of the matrix).
+The Ambulatory Medical Care dataset contains the demographic and medical
+visit information for each patient (e.g., gender, age, duration of visit, physician’s
+diagnosis, symptoms, medication, etc.).
+
+
+
+Classification: Gender can be predicted as a function of symptoms, medication, and duration of visit. Here the rows will be the individuals, and the columns will be symptoms coded as a binary variable indicating presence of the symptom, it will also include medication coded in a similar fashion, finally the gender will be included in the data matrix.
+
+Clustering: Diagnostic severity  can attempted to be modeled via an unsupervised classification paradigm and the physicians diagnosis can be used as the outcome. Data included for the clustering will include demographic variables, and symptoms, every row will represent an individual patient. Columns will be the demographic variables such as age and race, age will be coded as a continuous variable, race will be coded as a nominal factor, and symptoms wil be coded as a binary variable for all symptoms indicating presence or not of the symptom. 
+
+Association rule mining: Association rule mining can be used to compare symptoms reported and the diagnosis the physician scored for each individual patient. The data will be organized with various symptoms as the columns and binary true/false indicators to indicate whether symptoms are preset in a patient where each row represents an individual patient.
+
+Anomaly Detection: Anomalys for diagnoses can be attempted to be detected as a function of reported symptoms. The data will be organized with various symptoms as the columns and binary true/false indicators to indicate whether symptoms are preset in a patient where each row represents an individual patient.
+
+
+
+
+# Question 2
+
+For each attribute given, classify its type as:
+
+
+• discrete or continuous AND
+
+
+• qualitative or quantitative AND
+
+
+• nominal, ordinal, interval, or ratio
+
+
+Example: Age in years.
+Answer: Discrete, quantitative, ratio.
+
+
+1. Daily user traffic volume at YouTube.com (i.e., number of daily visitors who visited the
+Web site).
+2. Air pressure of a car/bicycle tire (in psi).
+3. Homeland Security Advisory System ratings - code red/orange/etc.
+4. Credit card number.
+5. The wealth of a nation measured in terms of gross domestic product (GDP) per capita
+above the world’s average of $10,500.
+
+### Answers: 
+
+1. Discrete ; Quantitative ; Ratio
+
+2. Continuous ; Quantitative ; Ratio
+
+3. Discrete ; Qualitative ;  Ordinal
+
+4. Discrete ; Qualitative ; Nominal
+
+5. Continuous ; Quantitative ; Interval
+
+
+## Question 3 part 1
+```{r q-3-1}
+```
+
+## Question 3 part 2
+The most appropriate metric to use for these two vectors would be the Mahalanobis distance. This is the most appropriate metric given the difference in scale between the two vectors.the mean of the x values is roughly 30 whereas the mean for the y values is roughly 65000. This difference in scale makes the euclidean difference undesierable because while a differences may be consistenly large it would be difficult to tell if the difference is large in either the Y or X direction in isolation. The simple matching coefficient is not appropriate because the values would nee dot be binarized prior to it's calculation and binarizing continous data typically requires an arbitrary rule set. The Mahalanobis thus is the most appropriate because it looks beyond raw units and uses varainces and covarainces to assign distances between points.
+
+
+# Question 4
+```{r q-4 , echo=FALSE, eval=TRUE}
+```
+
+## Question 4-1
+Write a function that estimates the missing values in the dataset by using the means of the
+available values as follows: for each continuous attribute that has one or more missing
+values, compute the mean of the available values in that attribute and replace every
+missing value in that attribute with the mean. Then use this function to estimate all the
+missing values of continuous attributes in the dataset.
+
+
+```{r q-4-1, echo = TRUE, eval=TRUE}
+```
+
+## Question 4-2
+Draw a random sample of size 50 without replacement out of all rows in the dataset, and
+discard the rest.
+
+```{r q-4-2, echo = TRUE, eval=TRUE}
+```
+
+## Question 4-3
+Write a function that performs equal frequency discretization of a continuous attribute.
+
+```{r q-4-3, echo = TRUE, eval=TRUE}
+```
+
+
+## Question 4-4
+Write a function that performs equal width discretization of a continuous attribute.
+
+```{r q-4-4, echo = TRUE, eval=TRUE}
+```
+
+
+## Question 4-5
+Do the following:
+
+
+a. Use the function implemented in Task 3 to discretize the horsepower attribute,
+and plot the original values of this attribute along with the split points resulting
+from the discretization function (like the plot in Figure 2.13 on Page 67 in the
+textbook). To do this, create a new attribute named ‘random_value’ and assign a
+random value for this ‘random_value’ attribute for every row in the dataset, and
+then plot horsepower vs. ‘random_value’.
+
+
+b. Repeat Task 5.a, but use the discretization function implemented in Task 4.
+
+
+c. Inspect the two plots produced in Tasks 5.a and 5.b and discuss what you have
+observed.
+
+```{r q-4-5, echo = TRUE, eval=TRUE}
+```
+
+The graphs above suggest the horsepower variable is skewed to the right. This is illustrated by the difference in the variability in the higher bins in the first graph and the difference in the number of values in the second graph. 
+
+## Question 4-6
+Create a matrix of scatter plots of the continuous attributes. Of these attributes, which
+ones do you think exhibit the greatest variability? Do you observe any correlation
+between any pair of attributes? Why?
+
+```{r q-4-6, echo = TRUE, eval=TRUE}
+```
+
+The scatter plots do suggest there is increased variablity in the displacement, horsepower, and weight variables; however, by nature these variables are graded on a continuous rather than a discrete scale. Furthermore, these same variables appear to be highly correlated with each other, suggesting that increases in any one of them yields a rather linear increase in the others. This is likely due to the nature of engines and how larger engines yield more power as well as weight.
