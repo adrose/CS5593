@@ -7,13 +7,57 @@ library("tidyverse")
 library("knitr")
 library("kableExtra")
 library("pracma")
+library("rpart")
+library("caret")
+library("RWeka")
+WPM("load-package", "simpleEducationalLearningSchemes")
 source("../../../adroseHelperScripts/R/afgrHelpFunc.R")
+
+## Declare functions for plotting
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
 
 # ---- problem-1-a --------------------------------------------------------
 # First declare the data
 horse.surgery <- c(0,1,1,0,0,1,1,0,0,0,1,1)
 horse.pulse <- c(92, 88, 64, 48, 76, 76, 88, 48, 92, 48, 64, 64)
-adbominal.distension <- c("None", "Severe", "Severe", "Slight", "Slight", "None", "Severe", "Severe", "Severe", "Slight", "Slight", "Slight")
+adbominal.distension <- c("None", "Severe", "Severe", 
+                          "Slight", "Slight", "None", 
+                          "Severe", "Severe", "Severe", 
+                          "Slight", "Slight", "Slight")
 treat.applied <- c(3, 2, 2, 1, 4, 1, 3, 1, 4, 1, 1, 4)
 treat.applied <- paste("Level", treat.applied)
 horse.data <- data.frame(horse.surgery, horse.pulse, adbominal.distension, treat.applied)
@@ -28,7 +72,8 @@ calc.entropy <- function(tableVal){
 }
 
 ## Now calculate the entire dataset entropy
-entropy.treatment <- calc.entropy(table(horse.data$treat.applied)) # Total dataset entropy == 1.887919
+entropy.treatment <- calc.entropy(table(horse.data$treat.applied)) 
+# Total dataset entropy == 1.887919
 
 ### First explore first round cuts
 ## First calculate surgery here
@@ -138,7 +183,8 @@ calc.gini <- function(counts){
 }
 
 ## Now calculate the entire dataset gini
-gini.treatment <- calc.gini(table(horse.data$treat.applied)) # Total dataset gini == 1.887919
+gini.treatment <- calc.gini(table(horse.data$treat.applied)) 
+# Total dataset gini == 1.887919
 
 ### First explore first round cuts
 ## First calculate surgery here
@@ -175,54 +221,34 @@ for(i in unique(horse.data$horse.pulse)){
 # [1] "48 : 0.123474326599326"
 # [1] "76 : 0.0234247234247234"
 
-## First calculate the total entropy of the pulse <= 76 cohort
-entropy.treatment.low.hr <- calc.entropy(table(horse.data$treat.applied[which(horse.data$hrBin==0)]))
+## The first step will be to create a binary variable using heartrate with a cutoff of > 49
+## If HR is lower than 49 --> treatment group 1
 
-## Now calculate entropy for surgery
-entropy.treatment.low.hr.surgery.no <- calc.entropy(table(horse.data$treat.applied[which(horse.data$hrBin==0 & horse.data$horse.surgery==0)]))
-entropy.treatment.low.hr.surgery.yes <- calc.entropy(table(horse.data$treat.applied[which(horse.data$hrBin==0 & horse.data$horse.surgery==1)]))
+horse.data$hrBin <- 0
+horse.data$hrBin[horse.data$horse.pulse>48] <- 1
 
-## Now calculate the weighted difference
-weigthed.entropy.step2.1 <- (4/8 * entropy.treatment.low.hr.surgery.no) + (4/8 * entropy.treatment.low.hr.surgery.yes)
-entropy.gain2.1 <- entropy.treatment.low.hr - weigthed.entropy.step2.1
-## Information gain for surgery == 0.1431559
-
-## Now try information gain for abdominal distension
-entropy.treatment.low.none <- calc.entropy(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="None" & horse.data$hrBin==0)])) # n=1
-entropy.treatment.low.slight <- calc.entropy(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="Slight"& horse.data$hrBin==0)])) # n=5
-entropy.treatment.low.severe <- calc.entropy(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="Severe"& horse.data$hrBin==0)])) # n=2
-
-## Now calculate the information gain
-weigthed.entropy.step2.2 <- (1/8 * entropy.treatment.low.none) + (5/8 * entropy.treatment.low.slight) + (2/8 * entropy.treatment.low.severe)
-entropy.gain2.2 <- entropy.treatment.low.hr - weigthed.entropy.step2.2
-## Information gain for surgery == 0.4419508
-
-## The second step for those horses who have lower heart rate will be to flag for abdominal distension:
-# for those with slight & none --> level 1 treatment
-# for those with Severe abdominal distension --> level 2 treatment
-
-## Now run through the same procedure for the high hr observations
+## Now run through this same classification procedure for the high hr horses
 ## First calculate the total entropy of the pulse > 76 cohort
-entropy.treatment.high.hr <- calc.entropy(table(horse.data$treat.applied[which(horse.data$hrBin==1)]))
+gini.treatment.high.hr <- calc.gini(table(horse.data$treat.applied[which(horse.data$hrBin==1)]))
 
-## Now calculate entropy for surgery
-entropy.treatment.high.hr.surgery.no <- calc.entropy(table(horse.data$treat.applied[which(horse.data$hrBin==1 & horse.data$horse.surgery==0)]))
-entropy.treatment.high.hr.surgery.yes <- calc.entropy(table(horse.data$treat.applied[which(horse.data$hrBin==1 & horse.data$horse.surgery==1)]))
+## Now calculate gini for surgery
+gini.treatment.high.hr.surgery.no <- calc.gini(table(horse.data$treat.applied[which(horse.data$hrBin==1 & horse.data$horse.surgery==0)]))
+gini.treatment.high.hr.surgery.yes <- calc.gini(table(horse.data$treat.applied[which(horse.data$hrBin==1 & horse.data$horse.surgery==1)]))
 
 ## Now calculate the weighted difference
-weigthed.entropy.step2.1 <- (2/4 * entropy.treatment.high.hr.surgery.no) + (2/4 * entropy.treatment.high.hr.surgery.yes)
-entropy.gain2.1 <- entropy.treatment.low.hr - weigthed.entropy.step2.1
-## Information gain for surgery == 0.5
+weigthed.gini.step2.1 <- (3/9 * gini.treatment.high.hr.surgery.no) + (6/9 * gini.treatment.high.hr.surgery.yes)
+gini.gain2.1 <- gini.treatment.high.hr - weigthed.gini.step2.1
+## Information gain for surgery == 0.02514569
 
 ## Now try information gain for abdominal distension
-entropy.treatment.high.none <- calc.entropy(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="None" & horse.data$hrBin==1)])) # n=1
-entropy.treatment.high.slight <- calc.entropy(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="Slight"& horse.data$hrBin==1)])) # n=0
-entropy.treatment.high.severe <- calc.entropy(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="Severe"& horse.data$hrBin==1)])) # n=3
+gini.treatment.high.none <- calc.gini(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="None" & horse.data$hrBin==1)])) # n=2
+gini.treatment.high.slight <- calc.gini(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="Slight"& horse.data$hrBin==1)])) # n=3
+gini.treatment.high.severe <- calc.gini(table(horse.data$treat.applied[which(horse.data$adbominal.distension=="Severe"& horse.data$hrBin==1)])) # n=4
 
 ## Now calculate the information gain
-weigthed.entropy.step2.2 <- (1/4 * entropy.treatment.high.none) +  (3/4 * entropy.treatment.high.severe)
-entropy.gain2.2 <- entropy.treatment.low.hr - weigthed.entropy.step2.2
-## Information gain for distension == 0.3112781
+weigthed.gini.step2.2 <- (2/9 * gini.treatment.high.none) +  (3/9 * gini.treatment.high.slight) + (4/9 * gini.treatment.high.severe)
+gini.gain2.2 <- gini.treatment.high.hr - weigthed.gini.step2.2
+## Information gain for surgery == -0.04566498
 
 ## The second step for those horses who have higher heart rate will be to flag for surgery:
 # for those with surgery --> level 2 treatment
@@ -264,16 +290,13 @@ out_ind <- union(out_ind, out_ind3)
 ## Remove the outliers from the data
 long_dt <- in.data[-out_ind,]
 ## Now print the data frame
-kable(
-  long_dt, 
+long_dt_print <- long_dt
+colnames(long_dt_print) <- substring(names(long_dt_print), 5)
+kable(long_dt_print, 
   format    = "latex", 
   longtable = T, 
-  booktabs  = T, 
-  caption   = "Longtable"
-) %>%
-  add_header_above(c(" ", "Group 1" = 5, "Group 2" = 6)) %>%
-  kable_styling(latex_options = c("repeat_header"),
-                repeat_header_continued = "\\textit{(Continued on Next Page...)}")
+  digits = 3) %>%
+  kable_styling(full_width = FALSE)
 
 # ---- problem-2-c --------------------------------------------------------
 # Now make a plot of the Magnesium; Color Intensity; and Malic Acid
@@ -295,3 +318,146 @@ out.plot.raw <- long_dt[,c("Magnesium", "Color_intensity", "Malic_acid")] %>%
   ggtitle("Raw values boxplot")
 
 multiplot(out.plot.raw, out.plot.standard, cols = 2)
+
+# ---- problem-2-d --------------------------------------------------------
+long_dt$Cultivar <- factor(long_dt$Cultivar)
+mod.1 <- rpart::rpart(Cultivar ~., data=long_dt)
+
+## Now plot the tree
+plot(mod.1)
+text(mod.1)
+
+## Now run through a cross validation using these same data with k=5
+# First create the folds
+set.seed(16)
+folds <- caret::createFolds(long_dt$Cultivar, k = 5)
+
+## Now prepare the output
+confusion.matrix.out <- list()
+model.error <- list()
+## Now run a loop where in each loop a model is trained
+## and then tested in the left out sample
+for(i in 1:length(folds)){
+  ## First train the model
+  mod.tmp <- rpart::rpart(Cultivar~., data=long_dt[-folds[[i]],])
+  ## Now get the confusion matrix
+  pred.vals <- predict(mod.tmp, newdata = long_dt[folds[[i]],], type='class')
+  true.vals <- long_dt[folds[[i]],"Cultivar"]
+  confusion.matrix <- table(pred.vals, true.vals)
+  ## Now get the error
+  total.vals <- sum(confusion.matrix)
+  correct.vals <- sum(diag(confusion.matrix))
+  model.error.tmp <- 1 - correct.vals/total.vals
+  ## Now output these values
+  print(confusion.matrix)
+  confusion.matrix.out[[i]] <- confusion.matrix
+  model.error[[i]] <- model.error.tmp
+}
+model.error1 <- model.error
+
+# ---- problem-2-e --------------------------------------------------------
+ID3 <- make_Weka_classifier("weka/classifiers/trees/Id3")
+long_dt$Cultivar <- factor(long_dt$Cultivar)
+
+## ID3 requires nominal attributes so I am going to 
+## convert all of my values into factors based on quartiles
+long_dt_id3 <- long_dt
+long_dt_id3[,2:14] <- apply(long_dt_id3[,2:14], 2, function(x)cut(x, breaks = 4))
+for(i in 2:14){long_dt_id3[,i] <- factor(long_dt_id3[,i])}
+mod.2 <- ID3(`Cultivar` ~ . , data=long_dt_id3)
+
+## Now run through a cross validation using these same data with k=5
+# First create the folds
+set.seed(16)
+folds <- caret::createFolds(long_dt_id3$Cultivar, k = 5)
+
+## Now prepare the output
+confusion.matrix.out <- list()
+model.error <- list()
+## Now run a loop where in each loop a model is trained
+## and then tested in the left out sample
+for(i in 1:length(folds)){
+  ## First train the model
+  mod.tmp <- ID3(Cultivar~., data=long_dt_id3[-folds[[i]],])
+  ## Now get the confusion matrix
+  pred.vals <- predict(mod.tmp, newdata = long_dt_id3[folds[[i]],], type='class')
+  true.vals <- long_dt[folds[[i]],"Cultivar"]
+  confusion.matrix <- table(pred.vals, true.vals)
+  ## Now get the error
+  total.vals <- sum(confusion.matrix)
+  correct.vals <- sum(diag(confusion.matrix))
+  model.error.tmp <- 1 - correct.vals/total.vals
+  ## Now output these values
+  print(confusion.matrix)
+  confusion.matrix.out[[i]] <- confusion.matrix
+  model.error[[i]] <- model.error.tmp
+}
+model.error2 <- model.error
+
+# ---- problem-2-f --------------------------------------------------------
+# First obtain the model mean errors from the 5-fold cross validation
+mean.model.error.1 <- mean(unlist(model.error1))
+mean.model.error.2 <- mean(unlist(model.error2))
+
+
+## Now use these errors to estimate the error varaince
+model.error.varaince = mean.model.error.1*(1-mean.model.error.1)/dim(long_dt)[1] + mean.model.error.2*(1-mean.model.error.2)/dim(long_dt)[1]
+model.difference = mean.model.error.1 - mean.model.error.2
+
+## Now calculate the confidence interval
+upper.bound = model.difference+2.58*sqrt(model.error.varaince)
+lower.bound = model.difference-2.58*sqrt(model.error.varaince)
+
+
+## Now return this value
+out.string <- paste("The estimated model difference is ", model.difference, "with a lower bound 99% confidence interval of ", lower.bound, "and an upper bound 99% confidence interval estimate of ", upper.bound)
+print(out.string)
+out.string2 <- paste("Because this confidence interval includes 0 within it's boundaries it leads us to conclude that there is no significant difference between the error of these models")
+print(out.string2)
+
+# ---- problem-2-g --------------------------------------------------------
+## Now return the predicted class from in an input tuple
+input.tuple.1  <- c(NA, apply(long_dt[,2:14], 2, function(x) sample(x, 1)))
+input.tuple.1 <- as.data.frame(t(input.tuple.1))
+## Now print the tuple to kable
+input.tuple.1 %>% 
+  kable(., , 
+            format    = "latex", 
+            longtable = T, 
+            digits = 3) %>%
+  kable_styling(full_width = FALSE)
+
+## Now predict the class for this tuple
+pred.class <- predict(mod.1, input.tuple.1, type='class')
+## Now print this
+print(paste("Predicted class input 1:", pred.class))
+
+input.tuple.2  <- c(NA, apply(long_dt[,2:14], 2, function(x) sample(x, 1)))
+input.tuple.2 <- as.data.frame(t(input.tuple.2))
+## Now print the tuple to kable
+input.tuple.2 %>% 
+  kable(., , 
+        format    = "latex", 
+        longtable = T, 
+        digits = 3) %>%
+  kable_styling(full_width = FALSE)
+
+## Now predict the class for this tuple
+pred.class <- predict(mod.1, input.tuple.2, type='class')
+## Now print this
+print(paste("Predicted class input 2:", pred.class))
+
+input.tuple.3  <- c(NA, apply(long_dt[,2:14], 2, function(x) sample(x, 1)))
+input.tuple.3 <- as.data.frame(t(input.tuple.3))
+## Now print the tuple to kable
+input.tuple.3 %>% 
+  kable(., , 
+        format    = "latex", 
+        longtable = T, 
+        digits = 3) %>%
+  kable_styling(full_width = FALSE)
+
+## Now predict the class for this tuple
+pred.class <- predict(mod.1, input.tuple.3, type='class')
+## Now print this
+print(paste("Predicted class input 3:", pred.class))

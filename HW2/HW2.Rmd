@@ -37,7 +37,7 @@ Applied” and using the Decision Tree Induction Algorithm 3.1 given on Page 137
 answer the following questions:
 
 ## a)
-```{r problem-1-a, echo = TRUE, eval=TRUE}
+```{r problem-1-a, echo = TRUE, eval=TRUE, results = 'asis'}
 ```
 
 
@@ -57,11 +57,72 @@ $|$  Surgery == Yes: treatment level 2
 $|$  Surgery == No : Treatment level 4
 
 
+## b)
+```{r problem-1-b, echo = TRUE, eval=TRUE}
+```
+
+
+### Final tree for part b:
+Heart rate <=48 : treatment level 1
+
+Heart rate >76
+
+$|$  Surgery == Yes: treatment level 2
+
+$|$  Surgery == No : Treatment level 4
+
+## c)
+$err_{gen}(T)=err(T)+\Omega\times\frac{k}N_{train}$
+
+$err(T)=\frac{7}{12}$
+
+$\Omega=.5$
+
+$k=5$
+
+$N_{train}=12$
+
+$err_{gen}(T)=.792$
+
+## d)
+
+$Cost(tree,data) = Cost(tree) + Cost(tree|data)$
+
+$Cost(tree)=log2m_{attributes}+log2k_{classes}=log2(3)+log2(4)=3.6$
+
+### Entropy
+
+$Cost(tree)=log2m_{attributes}+log2k_{classes}=log2(3)+log2(4)=3.6$
+
+$Cost(tree|data)=\sum log2n_{errorInstances}=17.9$
+
+$MDL_{Entropy}=21.5$
+
+### GINI
+
+$Cost(tree)=log2m_{attributes}+log2k_{classes}=log2(2)+log2(4)=3$
+
+$Cost(tree|data)=\sum log2n_{errorInstances}=17.9$
+
+$MDL_{GINI}=20.9$
+
+
+The MDL principle suggests the GINI tree is a more efficient method for approximation. This is because while the error rates are equivalent acorss the two methods (7/12) as well as the number of classes to identify (k=4) the GINI index only requires 2 attributes (k=2), whereas the Entropy method requires 3 (k=3), thus the GINI has a lower MDL of 20.9 to the Entropy's 21.5, a difference of .6 bits.
+
+
 # Problem 2
 
 ## 1)
-The Iterative Dichotomiser 3 (ID3) algorithm and also the Classification and Regression Tree (CART) are two tree based approaches that are used to classify and for the latter cases they can also be used for regression. The ID3 approach stems from work performed in the 1980's by J.R. Quinlan whom introduced the technique as a method to classify noisy and incomplete data (1985). The CART approach was contemporaneously developed by Breiman as an alternative to parametric regression techniques which were the predominant analytic technique of the time period (1984). 
+The Iterative Dichotomiser 3 (ID3) algorithm and also the Classification and Regression Tree (CART) are two tree based approaches that are used to classify and for the latter cases they can also be used for regression. The ID3 approach stems from work performed in the 1980's by J.R. Quinlan whom introduced the technique as a method to classify noisy and incomplete data (1985). The CART approach was contemporaneously developed by Breiman as an alternative to parametric regression techniques which were the predominant analytic technique of the time period for the behavioral sciences (1984).
 
+The ID3 algorithm is an iterative procedure which explores the entirety of a parameter space and builds a decision based on information gain, typically it uses entropy or a similar metric to measure information gain. In the original paper written by Quinlan, he explicitly described the information gain procedure using entropy (1985). The benefits of this algorithm are that it guarantees an solution; however, it is stated that this may not be the most optimal solution possible as the tree building procedure.
+
+The CART approach as described Breiman is similar in practice to the ID3 algorithm in that it is trying to classify observations based on a tree based rule structure, although one clear advantage of this suite of tools is their ability to work with continuous data. The algorithm works in a similar manner wherein the algorithm is attempting to minimize the total Gini impurity within the data. The Gini impurity measures how equally distributed a variable is within a set of observations.
+
+
+Quinlan, J. R. 1986. Induction of Decision Trees. Mach. Learn. 1, 1 (Mar. 1986), 81–106
+
+Breiman, Leo; Friedman, J. H.; Olshen, R. A.; Stone, C. J. (1984). Classification and regression trees. Monterey, CA: Wadsworth & Brooks/Cole Advanced Books & Software.
 
 ## 2)
 
@@ -81,4 +142,20 @@ It appears all three of the plotted variables have observations that are greater
 ```
 
 Seen above it would appear the intensity variable still posses minor outliers, although these all do appear to have much more satisfactory distributions. Malic acid does display a little positive skewness; whereas, both magnesium and color intensity appear to be more normally distributed.
+
+### d)
+```{r problem-2-d, echo = TRUE, eval=TRUE}
+```
+
+### e)
+```{r problem-2-e, echo = TRUE, eval=TRUE}
+```
+
+### f)
+```{r problem-2-f, echo = TRUE, eval=TRUE, results = 'asis'}
+```
+
+### g)
+```{r problem-2-g, echo = TRUE, eval=TRUE, results = 'asis'}
+```
 
