@@ -1,0 +1,84 @@
+---
+title: "HW 2"
+author: "Adon Rosen"
+date: 'Date: `r Sys.Date()`'
+output: pdf_document
+---
+  
+```{r, echo=F, message=F, warning=FALSE}
+library(knitr)
+opts_knit$set(root.dir='./')  #Don't combine this call with any other chunk -especially one that uses file paths.
+```
+
+
+<!-- Set the report-wide options, and point to the external code file. -->
+```{r set_options, echo=F, warning=FALSE}
+# cat("Working directory: ", getwd())
+report_render_start_time <- Sys.time()
+opts_chunk$set(
+  results    = 'show',
+  comment    = NA,
+  tidy       = FALSE,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.path   = 'figure-png/'
+)
+# echoChunks <- FALSE
+options(width=80) #So the output is 50% wider than the default.
+read_chunk("./HW2.R") #This allows knitr to call chunks tagged in the underlying *.R file.
+```
+
+```{r load-packages, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+# Problem 1
+Using the following dataset where the class attribute is “Treatment
+Applied” and using the Decision Tree Induction Algorithm 3.1 given on Page 137 in the textbook,
+answer the following questions:
+
+## a)
+```{r problem-1-a, echo = TRUE, eval=TRUE}
+```
+
+
+### Final tree for part a:
+Heart rate <=76
+
+$|$  Distension == none  : treatment level 1
+
+$|$  Distension == slight: treatment level 1
+
+$|$  Distension == severe: treatment level 2
+
+Heart rate >76
+
+$|$  Surgery == Yes: treatment level 2
+
+$|$  Surgery == No : Treatment level 4
+
+
+# Problem 2
+
+## 1)
+The Iterative Dichotomiser 3 (ID3) algorithm and also the Classification and Regression Tree (CART) are two tree based approaches that are used to classify and for the latter cases they can also be used for regression. The ID3 approach stems from work performed in the 1980's by J.R. Quinlan whom introduced the technique as a method to classify noisy and incomplete data (1985). The CART approach was contemporaneously developed by Breiman as an alternative to parametric regression techniques which were the predominant analytic technique of the time period (1984). 
+
+
+## 2)
+
+### a)
+```{r problem-2-a, echo = TRUE, eval=TRUE}
+```
+
+
+### b)
+It appears all three of the plotted variables have observations that are greater than 1.5 times the interquartile range. Interestingly they are all in the same direction such that the outliers are larger than the reported means.
+
+```{r problem-2-b, echo = TRUE, eval=TRUE}
+```
+
+### c)
+```{r problem-2-c, echo = TRUE, eval=TRUE}
+```
+
+Seen above it would appear the intensity variable still posses minor outliers, although these all do appear to have much more satisfactory distributions. Malic acid does display a little positive skewness; whereas, both magnesium and color intensity appear to be more normally distributed.
+
