@@ -169,3 +169,5 @@ customers:
 the textbook for frequent itemset generation so that the algorithm will generate only
 frequent itemsets of size less than or equal to N. Implement this version as a
 function named ModifiedApriori.
+```{r problem-3-bII, echo = FALSE, eval=TRUE, results = 'asis'}
+```

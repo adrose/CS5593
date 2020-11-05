@@ -230,7 +230,11 @@ ModifiedApriori <- function(data, n=3, sup=0.003){
   all.element.n[[1]] <- all.trans[,1]
   all.trans.np <- list()
   all.trans.np[[1]] <- all.trans
+  data <- data[-which(apply(in.data, 1, function(x) sum(!is.na(x)))==1),]
+  ## Now find rows w/o any of the items to search
+  data <- data[-which(apply(data, 1, function(x) sum(all.trans[,1] %in% x))==0),]
   index <- 1
+  Sys.time()
   for(q in 2:n){
     all.element.n[[q]] <- combn(all.trans[,1], q)
     ## Now remove those that are not in the trimmed 2 pair
@@ -251,12 +255,25 @@ ModifiedApriori <- function(data, n=3, sup=0.003){
           call <- paste(call, "& all.element.n[[q]][", d,",", i, "] %in% x")
         }
       }
-      count <- sum(apply(data, 1, function(x) eval(parse(text=call))))
-      c(paste(all.element.n[[q]][,i]), count)
+      count <- sum(apply(data[which(apply(data, 1, function(x) all.element.n[[q]][d,i] %in% x)),], 1, function(x) eval(parse(text=call))))
+      # orig
+      #  sum(apply(data, 1, function(x) eval(parse(text=call))))
+      ## NOw add a completion check
+      complet.check2 <- ncol(all.element.n[[q]]) * .1
+      if( complet.check2 %% i == 0 ){
+        file.create(paste(i, ncol(all.element.n[[q]]), format(Sys.time(), "%X"), sep='_'))
+      }
+      to.write <-c(paste(all.element.n[[q]][,i]), count)
+      if(count>threshold){
+        to.write
+      }
+      ## Now add a flag for progress
+      
     }
-    all.trans.n <- all.trans.n[-which(as.numeric(all.trans.n[,q+1]) < threshold),]
+    #all.trans.n <- all.trans.n[-which(as.numeric(all.trans.n[,q+1]) < threshold),]
     all.trans.np[[q]] <- all.trans.n
     index <- index + 1
+    data <- data[-which(apply(in.data, 1, function(x) sum(!is.na(x)))==q),]
   }
   ## Now return all of these
   out.vals <- list(out.items <- all.element.n, out.supp <- all.trans.np, n<-n, sup<-sup)
@@ -267,3 +284,11 @@ RuleGeneration <- function(out.vals){
   ## from the output of the ModifiedApriori function
   
 }
+
+# ---- problem-3-bIII --------------------------------------------------------
+## Run the apriori function
+time.start <- Sys.time()
+all.dat <- ModifiedApriori(in.data, n = 3, sup = .03)
+time.end <- Sys.time()
+time.end - time.start
+
