@@ -1,0 +1,171 @@
+---
+title: "HW 3"
+author: "Adon Rosen"
+date: 'Date: `r Sys.Date()`'
+output: pdf_document
+---
+  
+```{r, echo=F, message=F, warning=FALSE}
+library(knitr)
+opts_knit$set(root.dir='./')  #Don't combine this call with any other chunk -especially one that uses file paths.
+```
+
+
+<!-- Set the report-wide options, and point to the external code file. -->
+```{r set_options, echo=F, warning=FALSE}
+# cat("Working directory: ", getwd())
+report_render_start_time <- Sys.time()
+opts_chunk$set(
+  results    = 'show',
+  comment    = NA,
+  tidy       = FALSE,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.path   = 'figure-png/'
+)
+# echoChunks <- FALSE
+options(width=80) #So the output is 50% wider than the default.
+read_chunk("./HW3.R") #This allows knitr to call chunks tagged in the underlying *.R file.
+```
+
+```{r load-packages, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+# Problem 1
+Do exercise 12 in Chapter 5 in the textbook using the
+following market basket transactions and a minimum support threshold of 35%. You must show
+and explain your work step by step.
+
+## a)
+Begin by identifying the support for each itemset in the data and remove all of those that do not have a support of greater than or equal to 35%
+```{r problem-1-support, echo = TRUE, eval=TRUE, results = 'asis'}
+```
+
+The isolated item set will be limited to the following:
+```{r problem-1-supportPass, echo = TRUE, eval=TRUE, results = 'asis'}
+```
+
+
+
+The maximal frequent itemsets include:
+
+1. B & D
+
+2. B & E
+
+3. A & D & E
+
+This is because all of their supersets do not exceed counts as these sets; for instance for the possible supersets of B & D such as B & C & D this superset is not included because it did not have the necessary support to be included. THis is true for the other included maximal frequent itemsets: B & E as well as A & D & E, all of their superstes did not have sufficient support to be included. 
+
+
+The closed frequent items include those that are closed sets and have support greater than or equal to the minimum support threshold and are also closed. The closed frequent itemsets include:
+
+1. A & D
+
+1. A & E
+
+This is because the supersets of these two include A & D & E, which has a lower support than both A & D as well as A & E.
+
+
+The frequent but neither maximal or closed includes only the following itemset:
+
+1. D & E
+
+This is because they meet the support threshold of >= .35; but are not closed becuse the support for the superset of A & D & E is greater than the support for D & E
+
+```{r problem-1-maximal, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+The following are infrequent itemsets because they do not meet the support threshold of greater than .35
+
+```{r problem-1-infrequent, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+# Problem 2
+
+
+## a. 
+Using the transactions in Problem 1, draw a contingency table for each of the followingrules: {b} → {e}, {a} → {d}, {e} → {d}.
+
+Create a contingency table for B & E:
+```{r problem-2-contingency1, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+
+Create a contingency table for A & D:
+```{r problem-2-contingency2, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+Create a contingency table for E & D:
+```{r problem-2-contingency3, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+## b.
+Using the contingency tables and the three association rules in Question (a) of Problem 2,
+for each of the measures (Support, Confidence, Interest, and IS), compute the measure
+values for those rules and rank the rules based on their measure values with rank 1 being the best and 3 the worst. Show your work manually in detail. For each measure, show a
+table that has the following format, where <Measure> is one of the above four measures:
+
+Support is the frequency of the rule within all transactions: 
+
+Support(B --> E): $(B \cap E) / n$ == 5 / 12
+
+Support(A --> D): $(A \cap D) / n$ == 6 / 12
+
+Support(E --> D): $(E \cap D) / n$ == 8 / 12
+
+```{r problem-2-results1, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+
+Confidence is the conditional probability of the event given another event:
+
+Confidence(B --> E): $p(B|E) = (B\cup E)/(E)$ == 5 / 10
+
+Confidence(A --> D): $p(A|D) = (A\cup D)/(D)$ == 6 / 9
+
+Confidence(E --> D): $p(E|D) = (E\cup D)/(D)$ == 8 / 9
+
+```{r problem-2-results2, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+Interest, or lift, is the probability of the joint event occurring given the unconditioned probability of the total events
+
+Interest(B --> E): $\frac{P(B\cap E)}{P(B)\times P(E)}$ = (5/12) / (7/12) * (10/12)
+
+Interest(A --> D): $\frac{P(A\cap D)}{P(A)\times P(D)}$ = (6/12) / (7/12) * (9/12)
+
+Interest(E --> D): $\frac{P(E\cap D)}{P(E)\times P(D)}$ = (8/12) / (10/12) * (9/12)
+
+```{r problem-2-results3, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+
+IS or the cosine the measure of correlation between the two item sets
+
+IS(B --> E): $\frac{ P(B \cap E)}{\sqrt{P(B)P(E)}}$ = $\frac{ (5/12)}{\sqrt{(7/12)(10/12)}}$
+
+IS(A --> D): $\frac{ P(A \cap D)}{\sqrt{P(A)P(D)}}$ = $\frac{ (6/12)}{\sqrt{(7/12)(9/12)}}$
+
+IS(E --> D): $\frac{ P(E \cap D)}{\sqrt{P(E)P(D)}}$ = $\frac{ (8/12)}{\sqrt{(10/12)(9/12)}}$
+
+```{r problem-2-results4, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+## c. Given the rankings obtained in Question (b) of Problem 2, for each measure (Support,
+Interest, and IS), compute the correlation between the ranking of Confidence and the
+rankings of that measure. Which of those three measures is the most correlated with
+Confidence? Which measure is the least correlated with Confidence? Justify your answers.
+
+
+# Problem 3
+## b. Using a programming language of your choice (e.g. C, C++, Java, Python, or R), write a
+program to perform the following tasks (i-iii) concerning the generation of frequent
+itemsets and association rules when applied to help a business recommend products to its
+customers:
+
+### i. Implement a modified version of the Apriori Algorithm described on page 368 of
+the textbook for frequent itemset generation so that the algorithm will generate only
+frequent itemsets of size less than or equal to N. Implement this version as a
+function named ModifiedApriori.
