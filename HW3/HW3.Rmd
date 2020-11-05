@@ -32,10 +32,7 @@ read_chunk("./HW3.R") #This allows knitr to call chunks tagged in the underlying
 ```
 
 
-# Problem 1
-Do exercise 12 in Chapter 5 in the textbook using the
-following market basket transactions and a minimum support threshold of 35%. You must show
-and explain your work step by step.
+# Problem 1 Do exercise 12 in Chapter 5 in the textbook using the following market basket transactions and a minimum support threshold of 35%. You must show and explain your work step by step.
 
 ## a)
 Begin by identifying the support for each itemset in the data and remove all of those that do not have a support of greater than or equal to 35%
@@ -85,8 +82,7 @@ The following are infrequent itemsets because they do not meet the support thres
 # Problem 2
 
 
-## a. 
-Using the transactions in Problem 1, draw a contingency table for each of the followingrules: {b} → {e}, {a} → {d}, {e} → {d}.
+## a.  Using the transactions in Problem 1, draw a contingency table for each of the followingrules: {b} → {e}, {a} → {d}, {e} → {d}.
 
 Create a contingency table for B & E:
 ```{r problem-2-contingency1, echo = FALSE, eval=TRUE, results = 'asis'}
@@ -101,11 +97,7 @@ Create a contingency table for E & D:
 ```{r problem-2-contingency3, echo = FALSE, eval=TRUE, results = 'asis'}
 ```
 
-## b.
-Using the contingency tables and the three association rules in Question (a) of Problem 2,
-for each of the measures (Support, Confidence, Interest, and IS), compute the measure
-values for those rules and rank the rules based on their measure values with rank 1 being the best and 3 the worst. Show your work manually in detail. For each measure, show a
-table that has the following format, where <Measure> is one of the above four measures:
+## b. Using the contingency tables and the three association rules in Question (a) of Problem 2, for each of the measures (Support, Confidence, Interest, and IS), compute the measure values for those rules and rank the rules based on their measure values with rank 1 being the best and 3 the worst. Show your work manually in detail. For each measure, show a table that has the following format, where <Measure> is one of the above four measures:
 
 Support is the frequency of the rule within all transactions: 
 
@@ -153,21 +145,16 @@ IS(E --> D): $\frac{ P(E \cap D)}{\sqrt{P(E)P(D)}}$ = $\frac{ (8/12)}{\sqrt{(10/
 ```{r problem-2-results4, echo = FALSE, eval=TRUE, results = 'asis'}
 ```
 
-## c. Given the rankings obtained in Question (b) of Problem 2, for each measure (Support,
-Interest, and IS), compute the correlation between the ranking of Confidence and the
-rankings of that measure. Which of those three measures is the most correlated with
-Confidence? Which measure is the least correlated with Confidence? Justify your answers.
+## c. Given the rankings obtained in Question (b) of Problem 2, for each measure (Support,Interest, and IS), compute the correlation between the ranking of Confidence and the rankings of that measure. Which of those three measures is the most correlated with Confidence? Which measure is the least correlated with Confidence? Justify your answers.
+
+The values that most highly correlates with the confidence ranking is limited to interest or lift. This is because the ranks are identical between confidence and lift which has A --> E has the lowest lift, E --> D as second, and A --> D has the greatest lift. These results suggest that the greatest dependence of these possible pairs is exhibited between A & D, whereas the lowest lift suggests independence amongst the possible pairs. 
+
+The reminaing two metrics, support and IS, both have identical correlations with confidence, here the ranks are B --> E is again the lowest, A --> D, is now in the middle, and E --> D is the highest. THis appears to be driven by the fact that E is an item that exists much more frequently which impacts the denominator when calculating the denominator for IS, and also the number of joiont positives for the support.
 
 
 # Problem 3
-## b. Using a programming language of your choice (e.g. C, C++, Java, Python, or R), write a
-program to perform the following tasks (i-iii) concerning the generation of frequent
-itemsets and association rules when applied to help a business recommend products to its
-customers:
+## b. Using a programming language of your choice (e.g. C, C++, Java, Python, or R), write a program to perform the following tasks (i-iii) concerning the generation of frequent itemsets and association rules when applied to help a business recommend products to its customers:
 
-### i. Implement a modified version of the Apriori Algorithm described on page 368 of
-the textbook for frequent itemset generation so that the algorithm will generate only
-frequent itemsets of size less than or equal to N. Implement this version as a
-function named ModifiedApriori.
-```{r problem-3-bII, echo = FALSE, eval=TRUE, results = 'asis'}
+### i. Implement a modified version of the Apriori Algorithm described on page 368 of the textbook for frequent itemset generation so that the algorithm will generate only frequent itemsets of size less than or equal to N. Implement this version as a function named ModifiedApriori.
+```{r problem-3-bII, echo = TRUE, eval=TRUE, results = 'asis'}
 ```

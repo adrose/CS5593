@@ -93,9 +93,9 @@ kable(out.support2,
   kable_styling(full_width = FALSE)
 
 # ---- problem-1-maximal --------------------------------------------------------
-fsets <- eclat(in.data, parameter = list(supp = 0.35))
-fsets.maximal <- fsets[is.maximal(fsets)]
-fsets.closed <- fsets[is.closed(fsets)]
+# fsets <- eclat(in.data, parameter = list(supp = 0.35))
+# fsets.maximal <- fsets[is.maximal(fsets)]
+# fsets.closed <- fsets[is.closed(fsets)]
 
 out.support3 <- out.support2
 out.support3$isMaximal <- FALSE
@@ -204,7 +204,7 @@ in.data <- read.table("./Data/HW3_data.txt", fill = TRUE)
 in.data[in.data==""] <- NA
 in.data <- apply(in.data, c(1,2), as.character)
 # Cretae a parallel environment
-registerDoParallel(8)
+registerDoParallel(6)
 # ---- problem-3-bII --------------------------------------------------------
 ModifiedApriori <- function(data, n=3, sup=0.003){
   ## This function will identify all possible candidate itemsets of sizes =< n
@@ -279,16 +279,47 @@ ModifiedApriori <- function(data, n=3, sup=0.003){
   out.vals <- list(out.items <- all.element.n, out.supp <- all.trans.np, n<-n, sup<-sup)
 }
 
-RuleGeneration <- function(out.vals){
+RuleGeneration <- function(out.vals, K=5){
   ## This function will organize the support and counts for all of the items
   ## from the output of the ModifiedApriori function
-  
+  ## First identify all of the top rules for each of the folds:
+  # Create a output table
+  out.table <- matrix(NA, nrow = K, ncol=length(out.vals[[2]])*2)
+  col.index.rule <- 1
+  col.index.sup <- 2
+  for(i in 1:length(out.vals[[2]])){
+    ## Make sure data frmat are correct
+    tmp.vals <- out.supp <- out.vals[[2]][[i]]
+    tmp.vals <- data.frame(tmp.vals)
+    tmp.vals[,ncol(tmp.vals)] <- as.numeric(as.character(tmp.vals[,ncol(tmp.vals)]))
+    tmp.vals <- tmp.vals[order(tmp.vals[,2], decreasing = T),]
+    ## Now collapse the cols needed
+    call <- NULL
+    for(q in 1:ncol(tmp.vals)-1){
+      if(q==1){
+        call <- paste("paste(tmp.vals[,1:", K, ",", q, "]", ",")
+      }else{
+        call <- paste(call, "tmp.vals[,1:", K, ",", q, "]", ",")
+      }
+    }
+    call <- paste(call, ")")
+    rule.vec <- paste(tmp.vals[1:K,1], tmp.vals[1:K,2], sep="+")
+    supp.vec <- tmp.vals[1:K, ncol(tmp.vals)]
+    out.table[,col.index.rule] <- rule.vec
+    out.table[,col.index.sup] <- supp.vec
+    col.index.rule <- col.index.rule+2
+    col.index.sup <- col.index.sup+2
+  }
+  return(out.table)
 }
 
 # ---- problem-3-bIII --------------------------------------------------------
+
 ## Run the apriori function
 time.start <- Sys.time()
-all.dat <- ModifiedApriori(in.data, n = 3, sup = .03)
+all.dat <- ModifiedApriori(in.data, n = 3, sup = .01)
 time.end <- Sys.time()
 time.end - time.start
 
+## Now grab the top rules
+all.rul <- RuleGeneration(all.dat, K = 5)
