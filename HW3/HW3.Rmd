@@ -158,3 +158,17 @@ The reminaing two metrics, support and IS, both have identical correlations with
 ### i. Implement a modified version of the Apriori Algorithm described on page 368 of the textbook for frequent itemset generation so that the algorithm will generate only frequent itemsets of size less than or equal to N. Implement this version as a function named ModifiedApriori.
 ```{r problem-3-bII, echo = TRUE, eval=TRUE, results = 'asis'}
 ```
+
+### ii. Implement an algorithm to generate the association rules from the discovered frequent itemsets as a function named RuleGeneration.
+
+### iii. Call the ModifiedApriori function and RuleGeneration function on the given dataset to compute the frequent itemsets of size less than or equal to N and their association rules. For each association rule found, compute its confidence. Then sort all the association rules in the decreasing order of confidence and print the top K ranked association rules.
+
+```{r problem-3-bIII, echo = TRUE, eval=FALSE, results = 'asis'}
+```
+
+
+## c. Run the program written for Task (b) of Problem 3 using the input values of 0.3% for the minimum support threshold, 3 for N, and 5 for K. Display the rules generated and provide your interpretations of the patterns discovered in terms of the cross-selling application.
+```{r problem-3-4, echo = FALSE, eval=TRUE, results = 'asis'}
+```
+
+Here we see by far the most frequently browsed item out of roughly 13,000 unique items is: DAI62779 which was viewed 6667 times. This item was viewed most frequently with: ELE17451, the pair of these were viewed together 3875 times in total. Finally, the 3 pair itemset with the greatest visitin included the previous two and additionally: SNA80324. It seems that two item visitations occur much greater than 3 item seen by the precipitious drop in frequency compared to the 2 versus 3 rules support.

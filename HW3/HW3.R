@@ -230,11 +230,11 @@ ModifiedApriori <- function(data, n=3, sup=0.003){
   all.element.n[[1]] <- all.trans[,1]
   all.trans.np <- list()
   all.trans.np[[1]] <- all.trans
+  #all.trans.np[[1]] <- all.trans[order(as.numeric(all.trans[,2]), decreasing = T)[1:7],]
   data <- data[-which(apply(in.data, 1, function(x) sum(!is.na(x)))==1),]
   ## Now find rows w/o any of the items to search
   data <- data[-which(apply(data, 1, function(x) sum(all.trans[,1] %in% x))==0),]
   index <- 1
-  Sys.time()
   for(q in 2:n){
     all.element.n[[q]] <- combn(all.trans[,1], q)
     ## Now remove those that are not in the trimmed 2 pair
@@ -246,6 +246,7 @@ ModifiedApriori <- function(data, n=3, sup=0.003){
     if(length(to.rm)>0){
       all.element.n[[q]] <- all.element.n[[q]][,-to.rm]
     }
+    #all.element.n[[q]] <- all.element.n[[q]][,which(all.element.n[[3]][1,] == "DAI62779" & all.element.n[[3]][2,] == "ELE17451")]
     all.trans.n <- foreach(i=1:ncol(all.element.n[[q]]), .combine=rbind) %dopar%{
       call <- NULL
       for(d in 1:q){
@@ -260,18 +261,16 @@ ModifiedApriori <- function(data, n=3, sup=0.003){
       #  sum(apply(data, 1, function(x) eval(parse(text=call))))
       ## NOw add a completion check
       complet.check2 <- ncol(all.element.n[[q]]) * .1
-      if( complet.check2 %% i == 0 ){
+      if( i %% floor((ncol(all.element.n[[q]]) / 10))  == 0 ){
         file.create(paste(i, ncol(all.element.n[[q]]), format(Sys.time(), "%X"), sep='_'))
       }
       to.write <-c(paste(all.element.n[[q]][,i]), count)
       if(count>threshold){
         to.write
       }
-      ## Now add a flag for progress
-      
     }
     #all.trans.n <- all.trans.n[-which(as.numeric(all.trans.n[,q+1]) < threshold),]
-    all.trans.np[[q]] <- all.trans.n
+    all.trans.np[[q]] <- all.trans.n[order(as.numeric(all.trans.n[[2]][,q+1]), decreasing=T)[1:10],]
     index <- index + 1
     data <- data[-which(apply(in.data, 1, function(x) sum(!is.na(x)))==q),]
   }
@@ -292,7 +291,7 @@ RuleGeneration <- function(out.vals, K=5){
     tmp.vals <- out.supp <- out.vals[[2]][[i]]
     tmp.vals <- data.frame(tmp.vals)
     tmp.vals[,ncol(tmp.vals)] <- as.numeric(as.character(tmp.vals[,ncol(tmp.vals)]))
-    tmp.vals <- tmp.vals[order(tmp.vals[,2], decreasing = T),]
+    tmp.vals <- tmp.vals[order(tmp.vals[,ncol(tmp.vals)], decreasing = T),]
     ## Now collapse the cols needed
     call <- NULL
     for(q in 1:ncol(tmp.vals)-1){
@@ -303,7 +302,7 @@ RuleGeneration <- function(out.vals, K=5){
       }
     }
     call <- paste(call, ")")
-    rule.vec <- paste(tmp.vals[1:K,1], tmp.vals[1:K,2], sep="+")
+    rule.vec <- eval(parse(text=call))
     supp.vec <- tmp.vals[1:K, ncol(tmp.vals)]
     out.table[,col.index.rule] <- rule.vec
     out.table[,col.index.sup] <- supp.vec
@@ -314,12 +313,28 @@ RuleGeneration <- function(out.vals, K=5){
 }
 
 # ---- problem-3-bIII --------------------------------------------------------
-
+# Load the data
+in.data <- read.table("./Data/HW3_data.txt", fill = TRUE)
+in.data[in.data==""] <- NA
+in.data <- apply(in.data, c(1,2), as.character)
+# Crete a parallel environment
+registerDoParallel(6)
 ## Run the apriori function
 time.start <- Sys.time()
-all.dat <- ModifiedApriori(in.data, n = 3, sup = .01)
+all.dat <- ModifiedApriori(in.data, n = 3, sup = .003)
 time.end <- Sys.time()
 time.end - time.start
 
 ## Now grab the top rules
 all.rul <- RuleGeneration(all.dat, K = 5)
+print(all.rul)
+#write.csv(all.rul, "all12.csv", quote=F, row.names=F)
+
+# ---- problem-3-4 --------------------------------------------------------
+to.print <- read.csv("./all12.csv")
+to.print <- data.frame(to.print)
+kable(to.print[1:5,], format = "latex", digits = 3,row.names=FALSE, col.names = c("Rule", "Support"))
+
+kable(to.print[6:10,], format = "latex", digits = 3, row.names=FALSE, col.names = c("Rule", "Support"))
+
+kable(to.print[11:15,], format = "latex", digits = 3, row.names=FALSE, col.names = c("Rule", "Support"))
