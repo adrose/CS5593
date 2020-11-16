@@ -1,0 +1,239 @@
+---
+title: "HW 4"
+author: "Adon Rosen"
+date: 'Date: `r Sys.Date()`'
+output: pdf_document
+---
+  
+```{r, echo=F, message=F, warning=FALSE}
+library(knitr)
+opts_knit$set(root.dir='./')  #Don't combine this call with any other chunk -especially one that uses file paths.
+```
+
+
+<!-- Set the report-wide options, and point to the external code file. -->
+```{r set_options, echo=F, warning=FALSE}
+# cat("Working directory: ", getwd())
+report_render_start_time <- Sys.time()
+opts_chunk$set(
+  results    = 'show',
+  comment    = NA,
+  tidy       = FALSE,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.path   = 'figure-png/'
+)
+# echoChunks <- FALSE
+options(width=80) #So the output is 50% wider than the default.
+read_chunk("./HW4.R") #This allows knitr to call chunks tagged in the underlying *.R file.
+```
+
+```{r load-packages, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+```{r problem-1, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+In single link hierarchical clustering, clusters are formed based on obtaining the shortest distance between possible pairs. In order to perform this, the minimum distance between clusters is identified, and the smallest distance identifies the next cluster, this is performed in a hierarchical fashion.
+
+The first step in this procedure is to identify, from the raw distance matrix, the points with the smallest distance. Here the minimum value from the input data is: `r min(all.dat)`, this is observed between P2 & P5; this will identify the first cluster of observations. THe distance matrix is now reestimated using the minimum observed distance between all observations, the updated matrix can be found below: 
+
+```{r problem-1-a2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The next clusters is derived from the second smallest distance between points, this value is: `r all.dat.order[2]`, this value is observed between P3 & P4, which forms the next cluster. Using this new cluster the distance matrix is again reestimated, the updated matrix can be found below:
+
+```{r problem-1-a3, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The next smallest distance is: `r all.dat.order[3]`, this distance can be found between P1 & [P2 & P5] as well as P1 & [P3 & P4], so the final clusters combines all observed data points with a a minimum distance between all remaining objects of .17. A dendrogram for these data and clusters can be found below:
+
+```{r problem-1-plot1, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+In complete link hierarchical clustering, clusters are determined by the maximum distance between objects that are clustered together, and the minimum of the identified distances is used to cluster objects.
+
+The first step is to identify, from the raw distance matrix, the points with the smallest distance. Here the minimum vlaue for the input data is: `r min(all.dat)`, this value is observed between P2 & P5; this will identify the first cluster of observations.
+
+Now the distance matrix is recalculated to identify the maximum distance between points with the new observed cluster, the new distance matrix is:
+
+```{r problem-1-s2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+After recalculating the distance matrix, the smallest distance is now obtained, the smallest distance from the newly estimated distance matrix is: `r min(all.dat.tmp)`, this distance is observed between P3 & P4. These points are now merged into a cluster and the maximum distances are recalculated. The new distance matrix is:
+
+```{r problem-1-s3, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The distance matrix is again re estimated; and the smallest distance is: `r min(all.dat.tmp2)` which appears between P1 & [P2 & P5]. These points are now merged into a cluster and the maximum distances are recalculated. The new distance matrix is:
+
+```{r problem-1-s4, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The associated dendrogram is:
+
+```{r problem-1-s5, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+# Problem 2
+Bisecting k-means is a combination between k-means as well as hierarchical clustering. The first step involves cutting data into 2 clusters, then calculating the sum-of-squares, the cluster with the greatest sum-of-squares is then further bisected until the number of K is satisfied.
+
+First identify some random centroids to initialize the algorithm with selected randomly:
+```{r problem-2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now calculate the distance of all points to these centroids. Here the Euclidean distance will be used which is calculated as: $d(X,C) = \sqrt{((x-x_c)^2+(y-y_c)^2)}$
+
+This will be estimated for every point using the first randomly selected centroids, the distances are:
+
+```{r problem-2-1, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now clusters are assigned based on the minimum distance to each cluster, the initial cluster assignment is:
+
+```{r problem-2-2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now within each of these clusters the mean x and y values will be calculated in order to obtain the new data driven centroids. The updated centroids will now be:
+
+```{r problem-2-3, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now the distances are reestimated using these new centroids
+
+```{r problem-2-4, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now assign the clusters using the second round distance estimates
+
+```{r problem-2-5, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now calculate the sum of squares within each cluster. This will be calculated as the squared distance for each point within each cluster:
+
+$\Sigma^n_{i=1}(x_i-\bar{x})^2$
+
+The sum of squares are:
+
+
+```{r problem-2-6, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now perform these same steps in the cluster with the highest sum of squares which is the first cluster. First begin by randomly selecting two centroids in the first cluster. The randomly initialized centriods will be:
+
+```{r problem-2-7, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The distances with the randomly selected centriods are:
+
+```{r problem-2-8, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The randomly selected clusters are:
+
+```{r problem-2-9, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now the new data driven centroids are estimated using the clusters from the first step, these updated centroids are:
+
+```{r problem-2-10, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The new distances for these centroids are:
+```{r problem-2-11, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The updated cluster assignment is:
+
+```{r problem-2-12, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now calculate the sum of squares for all defined clusters:
+
+```{r problem-2-13, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Here the third cluster will be further divided following the same steps as above. 
+
+First randomly select two centroids:
+
+```{r problem-2-14, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now calculate the distance from these for all points:
+
+```{r problem-2-15, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now assign these:
+
+```{r problem-2-16, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now calculate the new centroids by taking the mean values within each centroid:
+
+```{r problem-2-17, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Now calculate the distance from these data driven centroids:
+
+```{r problem-2-18, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+Assign these distances to a cluster:
+
+```{r problem-2-19, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+And finally report the final sum of squares:
+
+```{r problem-2-20, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+# Problem 3
+
+## Problem 3b - perform any preprocessing required
+These data are going to be z-scored in order to protect against the differences in scale. For instance, the A variable ranges from: 10.59 to 21.18 whereas the C variable ranges from 0.8081 to 0.9183. This differences can impact the differences the potential relative importance these variables can contribute, as well as biasing the ability to identify observations that cluster on these seperate variables.
+
+The data were scaled as follows:
+```{r problem-3-1, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+There were no outliers so we do not need to be concerned about clusters being biased by the any outliers.
+
+## Problem 3c
+```{r problem-3-c, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+The plot of the total sum of squares versus k can be found below:
+
+
+```{r problem-3-c2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+This plot suggests that the optimal K is equal to 4, this is because the reduction in the total sum of squares drops significantly from 2 --> 3 and 3 --> 4, but the reduction in total sum of squares from 4 --> 5 is much smaller.
+
+## Problem 3d
+```{r problem-3-d, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+The cluster sum of squares using the complete link inter-cluster similarity and Ward's inter-cluster similarity can be found below:
+
+```{r problem-3-d-totalsse, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+The observation cluster assignments can be found below:
+
+```{r problem-3-d-clusterAssign, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+## Problem 3e
+
+The goal of this analysis was to cluster  types of seeds based on several numeric elements of these seeds. Using a total of 210 observations and 10 characteristics the seeds were clustered using K-Means, as well as hierarchical clustering techniques. The optimal number of clusters was selected based on the elbow point observed in the total sum of squares explained by various number of cluster solutions, here the optimal k was chosen to be four clusters. The various methods used to cluster the data include: k-means and hierarchical clustering using the maximum inter-cluster similarity, as well as the Ward's inter-cluster similarity method. There was considerable disagreement across the clusters, beginning with the number of observations within each cluster solution, k-means provided the most balanced solution with 60 observations in the first cluster, 46 in the second, 42 in the third, and 62 in the fourth cluster. However, the numbers varied much more largely in the hierarchical methods a minimum of 14 observations in a cluster coming from the maximum inter-cluster similarity method, and also a maximum of 76 coming from the same method. The pearson's correlations also appear to be rather low across the clusters with the lowest observed correlation between the maximum inter-cluster similarity and k-means clustering with a value of .20, surprisingly, the greatest correlation value was observed between the k-means method and the Ward's method (r=.70), the hierarchical clustering methods displayed a moderate strength correlation (r=.48).
+
+The rather weak performance of these clustering methods may be due to the continuous nature of these data, there were no clear clusters of the data so the resultant solutions clustered data into those with large mean scores, through low mean scores. The solutions were not able to pick up clusters which may have had interactions among the variables, potentially due to the low number of optimal clusters selected.
