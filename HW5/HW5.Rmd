@@ -1,0 +1,137 @@
+---
+title: "HW 4"
+author: "Adon Rosen"
+date: 'Date: `r Sys.Date()`'
+output: pdf_document
+---
+  
+```{r, echo=F, message=F, warning=FALSE}
+library(knitr)
+opts_knit$set(root.dir='./')  #Don't combine this call with any other chunk -especially one that uses file paths.
+```
+
+
+<!-- Set the report-wide options, and point to the external code file. -->
+```{r set_options, echo=F, warning=FALSE}
+# cat("Working directory: ", getwd())
+report_render_start_time <- Sys.time()
+opts_chunk$set(
+  results    = 'show',
+  comment    = NA,
+  tidy       = FALSE,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.path   = 'figure-png/'
+)
+# echoChunks <- FALSE
+options(width=80) #So the output is 50% wider than the default.
+read_chunk("./HW5.R") #This allows knitr to call chunks tagged in the underlying *.R file.
+```
+
+```{r load-packages, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+## Problem 1A
+
+```{r problem-1-a, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+These data appear to be skewed to the right which can be observed by the minor difference between the mean (black line) and the median (red line) of the data. So they do not appear to be normally distributed at first glance.
+
+## Problem 1B
+
+```{r problem-1-b, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+## Problem 1C
+
+```{r problem-1-c, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+## Problem 1D
+
+```{r problem-1-d, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+## Problem 1E
+Below are the results from the parametric method
+```{r problem-1-e-1, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+Below are the results from the nonparametric method
+```{r problem-1-e-2, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+Below are the results from the nearest neighbor method
+```{r problem-1-e-3, echo=TRUE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+Here it appears the most sensitive metric is the nonparametric method which identifies 7 outliers, whereas the parametric method, with the most strict rules (w=1) only identified 3 outliers. The nonparamteric method agrees with my initial assumption of a largely skewed dataset, however the nearest neighbor method would most likely identify 3~4 outliers with distances > 8; this largely argues that these data need to be carefully used as there is a large amount of disagreement across these methods. I would argue that the most appropriate method to use with these data is the nonparametric method given the shape of the distribution of the data, the mean should not be used to identify outliers as is done with the parametric method, the nearest neighbor method does correctly identity the largest outlier, although there is some considerable variance across the distance as k changes from 2 and 3. 
+
+# Problem 2
+
+
+## Problem 2A
+### 1
+$P(accident=yes\vert+)=P(accident=yes \cap congestion=yes) / P(congestion=yes)=25/40=`r 25/40`$
+
+### 2
+$P(accident=yes \vert -)=P(accident=yes \cap congestion=no) / P(congestion=no)=10/60=`r 10/60`$
+
+### 3
+$P(weather=good\vert +)=P(weather=good \cap congestion=yes)/ P(congestion=yes)=25/40=`r 25/40`$
+
+### 4
+$P(weather=good\vert -)=P(weather=good \cap congestion=no) / P(congestion=no)=55/60=`r 55/60`$
+
+### 5
+$P(consturction=yes\vert +)=P(construction=yes \cap congestion=yes) / P(congestion=yes)=15/40=`r 15/40`$
+
+### 6
+$P(construction=yes\vert -)=P(construction=yes \cap congestion=no) / P(congestion=no)=20/60=`r 20/60`$
+
+## Problem 2B
+
+## Probability of positive
+$X=(Accident=no,weather=bad,construction=yes)$
+
+$P(X\vert +) = P(accident=no \vert congestion=yes) \times P(weather=bad \vert congestion=yes) \times P(construction=yes \vert congestion=yes)$
+
+$P(accident=no \vert congestion=yes)=1-P(accident=yes \vert congestion=yes)=`r 1 - (25/40)`$
+
+$P(weather=bad \vert congestion=yes)=1-P(weather=good \vert +)$=`r 1 -(25/40)`
+
+$P(construction=yes \vert +)=`r 15 / 40`$
+
+$P(X\vert+)=`r (1-(25/40)) * (1-(25/40)) * (15/40)`$
+    
+## Probability of negative
+$P(X\vert-) = P(accident=no \vert congestion=no) \times P(weather=bad \vert     congestion=no) \times P(construction=yes \vert congestion=no)$
+
+
+$P(accident=no \vert congestion=no) = `r 10/60`$
+
+
+$P(weather=bad \vert congestion = no) = 1-P(weather=good \vert -) = `r 1 - (55/60)`$
+
+$P(construction=yes \vert congestion = no)=`r 20/60`$
+
+$P(X\vert+)=`r (10/60) * (1 - (55/60)) * (20/60)`$
+
+Given these results the naive bayes classifier would predict a positive case
+
+# Problem 3
+
+## Clustering
+Clustering algorithms can be used to place individuals into a group of individuals who have similar behavior patterns as the others. Once an individual is allocated to a specific cluster, this can be used to better understand their internet search behavior. For instance, searches can be clustered on language used in the searches to better understand geographic and language use patterns.
+
+## Classification
+Classification can be used to distinguish individuals into typically one of two groups. This can be useful when trying to distinguish between demographic groups of the search provider. For instance, if the company was interested in distinguishing between language differences in young versus older individuals, they can use a classification algorithm to perform such a task.
+
+
+## Association rule mining
+Association rule mining can be used to identify phrases and searches that are typically paired together. For instance if the company is interested in identifying searches that are associated with planning a party they can identify phrases that are commonly used with words like "party" and "plan".
+
+## Anomaly detection 
+Anomaly detection can be used to identify instances that deviate for normative states, as well as identifying observations to deviate from normative rules. For instance, if the company is attempting to identify influential cases that may be contributing to skewed results, they can identify individuals who are making a large number of searches in a day. By exploring the distribution of the number of searches per day the company can remove individuals who make far more searches than would be feasible. 
